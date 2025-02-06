@@ -1,0 +1,89 @@
+{   
+    "settings": {
+        "cuda": 0,
+        "seed": 71,
+        "verbose": true,
+        "flush_print": true,
+        "parallel_client_training": false,
+        "num_parallel_max": 16
+    },
+    "dataset": "emnist",
+    "model": "emnist",
+    "client": {
+        "IID": true,
+        "dirichlet_alpha": 1.0,
+        "num_epochs": 2,
+        "lr": 0.01,
+        "batch_size": 64,
+        "weight_decay": 0.0,
+        "momentum": 0.0,
+        "transform": true,
+        "ADR": 1.0,
+        "attack": {
+            "type": "badnets",
+            "DPR": 0.5875,
+            "victim_class": 33,
+            "target_class": 34,
+            "trigger_pattern": "4pixel",
+            "trigger_position": "top_left",
+            "non_iid_equal_distribution": false
+        }
+    },
+    "server": {
+        "gpu_poor": true,
+        "server_lr": 1.0,
+        "low_confidence_threshold": 0.4,
+        "defense": {
+            "type": "maze",
+            "defense_args": {
+                "K": -1,
+                "budget": 4e6,
+                "model_gen": "conv3_gen",
+                "model_dis": "conv3_dis",
+                "stealing_method": "maze",
+                "client_cluster_filtering": true,
+                "ensemble": true,
+                "frac_recover_acc": 0.99,
+                "temperature": 1.0,
+                "K_start": 1,
+                "num_repeat_real": 10,
+                "prev_global_weight": 0,
+                "random_weight_S": 1.0,
+                "random_weight_G": 1.0,
+                "random_weight_D": 1.0,
+                "alpha_gan": 0.5,
+                "lambda1": 10.0,
+                "amp_enabled": false,
+                "log_iter": 1e5,
+                "disable_pbar": false,
+                "iter_clone": 5,
+                "iter_exp": 10,
+                "iter_gen": 1,
+                "lr_clone": 1e-1,
+                "lr_gen": 1e-3,
+                "lr_dis": 1e-4,
+                "lr_scheduler": "cosine",
+                "opt": "sgd",
+                "latent_dim": 100,
+                "blacklist_threshold": null,
+                "batch_size": 180,
+                "num_seed": 1200,
+                "penalty": 1.0,
+                "reward": 0.5,
+                "augment": false,
+                "clone_init_with_global": false,
+                "reference_model": false,
+                "early_stopping": true,
+                "finetune": false,
+                "loss_type": "l1"
+            }
+        }
+    },
+    "federation": {
+        "size": 100,
+        "round_size": 50,
+        "number_of_malicious_clients": 20,
+        "malicious_client_strategy": "random",
+        "rounds": 80
+    }
+}

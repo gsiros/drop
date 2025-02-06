@@ -1,0 +1,14 @@
+logs_new/*
+logs_final/*
+logs_final_*/*
+
+visualization_scripts/plots/*
+
+.vscode/*
+
+logs_fig3/*
+logs_dropexp/*
+stoopid/*
+server/__pycache__/*
+
+__pycache__/*

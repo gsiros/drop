@@ -1,0 +1,90 @@
+{
+    "dataset": "cifar10",
+    "model": "resnet18",
+    "client": {
+        "IID": true,
+        "num_epochs": 2,
+        "lr": 0.01,
+        "batch_size": 64,
+        "batchwise_poison": false,
+        "dirichlet_alpha": 0.5,
+        "ADR": 1.0,
+        "transform": true,
+        "attack": {
+            "type": "badnets",
+            "DPR": 0.125,
+            "target_class": 7,
+            "trigger_pattern": "4pixel",
+            "trigger_position": "top_left",
+            "victim_class": 0,
+            "non_iid_equal_distribution": false,
+            "participation_strategy": "consistent",
+            "poisoning_start_round": null,
+            "poisoning_end_round": null
+        }
+    },
+    "server": {
+        "server_lr": 1.0,
+        "low_confidence_threshold": 0.4,
+        "defense": {
+            "type": "maze",
+            "defense_args": {
+                "K": 5,
+                "budget": 5e6,
+                "model_gen": "conv3_gen",
+                "model_dis": "conv3_dis",
+                "stealing_method": "maze",
+                "client_cluster_filtering": true,
+                "ensemble": true,
+                "frac_recover_acc": 1.0,
+                "temperature": 1.0,
+                "K_start": 0,
+                "num_repeat_real": 10,
+                "prev_global_weight": 0,
+                "random_weight_S": 1.0,
+                "random_weight_G": 1.0,
+                "random_weight_D": 1.0,
+                "alpha_gan": 0.5,
+                "lambda1": 10.0,
+                "amp_enabled": false,
+                "log_iter": 1e5,
+                "disable_pbar": false,
+                "iter_clone": 5,
+                "iter_exp": 10,
+                "iter_gen": 1,
+                "lr_clone": 1e-1,
+                "lr_gen": 1e-3,
+                "lr_dis": 1e-4,
+                "lr_scheduler": "cosine",
+                "opt": "sgd",
+                "latent_dim": 100,
+                "blacklist_threshold": null,
+                "batch_size": 512,
+                "num_seed": 1000,
+                "penalty": 1.0,
+                "reward": 0.5,
+                "augment": false,
+                "clone_init_with_global": true,
+                "reference_model": false,
+                "early_stopping": false,
+                "finetune": false,
+                "loss_type": "l1"
+            }
+        }
+    },
+    "federation": {
+        "size": 50,
+        "number_of_malicious_clients": 10,
+        "round_size": 25,
+        "rounds": 200,
+        "malicious_client_strategy": "random"
+    },
+    "settings": {
+        "seed": 71,
+        "cuda": 0,
+        "verbose": true,
+        "flush_print": true,
+        "parallel_client_training": false,
+        "num_parallel_max": 16
+    }
+}

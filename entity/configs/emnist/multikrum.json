@@ -1,0 +1,49 @@
+{   
+    "settings": {
+        "cuda": 0,
+        "seed": 71,
+        "verbose": true,
+        "flush_print": true,
+        "parallel_client_training": false,
+        "num_parallel_max": 16
+    },
+    "dataset": "emnist",
+    "model": "emnist",
+    "client": {
+        "IID": true,
+        "dirichlet_alpha": 1.0,
+        "num_epochs": 2,
+        "lr": 0.01,
+        "batch_size": 64,
+        "weight_decay": 0.0,
+        "momentum": 0.0,
+        "transform": true,
+        "ADR": 1.0,
+        "attack": {
+            "type": "badnets",
+            "DPR": 0.5875,
+            "victim_class": 33,
+            "target_class": 34,
+            "trigger_pattern": "4pixel",
+            "trigger_position": "top_left",
+            "non_iid_equal_distribution": false
+        }
+    },
+    "server": {
+        "server_lr": 1.0,
+        "low_confidence_threshold": 0.4,
+        "defense": {
+            "type": "multikrum",
+            "defense_args": {
+                "multi_k": false
+            }
+        }
+    },
+    "federation": {
+        "size": 100,
+        "round_size": 50,
+        "number_of_malicious_clients": 20,
+        "malicious_client_strategy": "random",
+        "rounds": 100
+    }
+}

@@ -1,0 +1,8 @@
+scikit-learn
+hdbscan
+wandb
+git+https://github.com/lebrice/SimpleParsing.git
+numpy
+plotly
+kaleido
+seaborn
