@@ -74,11 +74,14 @@ Example usage from within the entity directory:
 Please cite our work as follows for any purpose of usage.
 
 ```tex
-@article{syros2025drop,
-    title={DROP: Poison Dilution via Knowledge Distillation for Federated Learning},
-    author={Syros, Georgios and Suri, Anshuman and Koushanfar, Farinaz and Nita-Rotaru, Cristina and Oprea, Alina},
-    journal={arXiv preprint arXiv:XXXX.12345},
-    year={2025}
+@misc{syros2025droppoisondilutionknowledge,
+      title={DROP: Poison Dilution via Knowledge Distillation for Federated Learning}, 
+      author={Georgios Syros and Anshuman Suri and Farinaz Koushanfar and Cristina Nita-Rotaru and Alina Oprea},
+      year={2025},
+      eprint={2502.07011},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.07011}, 
 }
 ```
 
