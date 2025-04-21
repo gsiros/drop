@@ -17,6 +17,8 @@ from tqdm import tqdm
 from utils import set_randomness_seed
 
 from entity.client.BadNetsClient import BadNetsClient
+from entity.client.NeurotoxinClient import NeurotoxinClient
+from entity.client.ChameleonClient import ChameleonClient
 from entity.client.Client import Client
 from entity.client.FLIPClient import FLIPClient
 from entity.config import (AttackConfig, ClientConfig, DefenseConfig,
@@ -29,7 +31,7 @@ from entity.dataset import (CIFAR10, EMNIST, GTSRB, BackdoorableCIFAR10,
                             FashionMNIST, FLDataset)
 from entity.models import (conv3_cgen, conv3_dis, conv3_gen, dfme_gen,
                            emnist_resnet18, gtsrb_resnet18, resnet18, resnet34,
-                           vgg11)
+                           vgg11, supconresnet18, emnist_supconresnet18)
 from entity.server.DROPServer import DROPSServer
 from entity.server.FinetuningServer import FinetuningServer
 from entity.server.FLAMEServer import FLAMEServer
@@ -260,10 +262,10 @@ def main(config: ExperimentConfig):
         )
         clean_testdata = torch.utils.data.DataLoader(clean_testdata, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
-        if ATTACK is None:
+        if ATTACK is None or ATTACK.type == 'None':
             # No attack / leave the poisoned test data as None
             pass
-        elif ATTACK.type == 'badnets':
+        elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
             poisoned_testdata = BackdoorableCIFAR10(
                 CIFAR10(root=DATASETS_PATH, train=False, transform=None, download=True),
                 transform=BackdoorableCIFAR10.TRANSFORM_PRESET_TEST
@@ -300,10 +302,10 @@ def main(config: ExperimentConfig):
         )
         clean_testdata = torch.utils.data.DataLoader(clean_testdata, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
-        if ATTACK is None:
+        if ATTACK is None or ATTACK.type == 'None':
             # No attack / leave the poisoned test data as None
             pass
-        elif ATTACK.type == 'badnets':
+        elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
             poisoned_testdata = BackdoorableFashionMNIST(
                 FashionMNIST(root=DATASETS_PATH, train=False, transform=None, download=True),
                 transform=BackdoorableFashionMNIST.TRANSFORM_PRESET_TEST
@@ -340,10 +342,10 @@ def main(config: ExperimentConfig):
         )
         clean_testdata = torch.utils.data.DataLoader(clean_testdata, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
-        if ATTACK is None:
+        if ATTACK is None or ATTACK.type == 'None':
             # No attack / leave the poisoned test data as None
             pass
-        elif ATTACK.type == 'badnets':
+        elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
             poisoned_testdata = BackdoorableEMNIST(
                 EMNIST(root=DATASETS_PATH, split='balanced', train=False, transform=None, download=True),
                 transform=BackdoorableEMNIST.TRANSFORM_PRESET_TEST
@@ -391,10 +393,10 @@ def main(config: ExperimentConfig):
 
         clean_testdata = torch.utils.data.DataLoader(clean_testdata, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
-        if ATTACK is None:
+        if ATTACK is None or ATTACK.type == 'None':
             # No attack / leave the poisoned test data as None
             pass
-        elif ATTACK.type == 'badnets':
+        elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
             total_poisondata_train = GTSRB(root=DATASETS_PATH, split='train', download=True)
             total_poisondata_test = GTSRB(root=DATASETS_PATH, split='test', download=True)
 
@@ -438,10 +440,10 @@ def main(config: ExperimentConfig):
         )
         clean_testdata = torch.utils.data.DataLoader(clean_testdata, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
-        if ATTACK is None:
+        if ATTACK is None or ATTACK.type == 'None':
             # No attack / leave the poisoned test data as None
             pass
-        elif ATTACK.type == 'badnets':
+        elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
             poisoned_testdata = BackdoorableCINIC10(
                 root=DATASETS_PATH,
                 split='test',
@@ -717,7 +719,7 @@ def main(config: ExperimentConfig):
     clients = None
     malicious_client_indxs = None
     benign_client_indxs = list(range(FEDERATION_SIZE))
-    if ATTACK is None or ATTACK.type == 'none':
+    if ATTACK is None or ATTACK.type == 'None':
         print("Attack: None", flush=FLUSH_PRINT)
         clients = [CLEAN_CLIENT_CLASS(
             model(),
@@ -725,8 +727,8 @@ def main(config: ExperimentConfig):
             config=DEFENSE_CONFIG,
             compile=COMPILE
         ) for i in range(FEDERATION_SIZE)]
-    elif ATTACK.type == 'badnets':
-        print("Attack: BadNets", flush=FLUSH_PRINT)
+    elif ATTACK.type in ['badnets', 'neurotoxin', 'chameleon']:
+        print(f"Attack: {ATTACK.type}", flush=FLUSH_PRINT)
         # Select a random subset of clients to be malicious:
         num_malicious = FEDERATION.number_of_malicious_clients
         malicious_client_indxs = select_random_clients(FEDERATION_SIZE, num_malicious)
@@ -734,12 +736,36 @@ def main(config: ExperimentConfig):
         clients = []
         for i in range(FEDERATION_SIZE):
             if i in malicious_client_indxs:
-                cl = BadNetsClient(
-                    model(),
-                    client_training_data[i],
-                    config=DEFENSE_CONFIG,
-                    compile=COMPILE
-                )
+                if ATTACK.type == 'badnets':
+                    cl = BadNetsClient(
+                        model(),
+                        client_training_data[i],
+                        config=DEFENSE_CONFIG,
+                        compile=COMPILE
+                    )
+                elif ATTACK.type == 'neurotoxin':
+                    cl = NeurotoxinClient(
+                        model(),
+                        client_training_data[i],
+                        config=DEFENSE_CONFIG,
+                        compile=COMPILE,
+                        neurotoxin_top_k=ATTACK.neurotoxin_top_k
+                    )
+                elif ATTACK.type == 'chameleon':
+                    supconmodel = None
+                    if DATASET == 'cifar10' or DATASET == 'cinic10':
+                        supconmodel = supconresnet18
+                    elif DATASET == 'emnist':
+                        supconmodel = emnist_supconresnet18
+                    else:
+                        raise ValueError(f"Unsupported dataset '{DATASET}' for Chameleon attack.")
+                    cl = ChameleonClient(
+                        model(),
+                        client_training_data[i],
+                        config=ATTACK,
+                        compile=COMPILE,
+                        sup_con_model=supconmodel
+                    )
                 cl.poison_data(
                     backdoor_trigger=ATTACK.trigger_pattern,
                     position=ATTACK.trigger_position,
@@ -824,7 +850,7 @@ def main(config: ExperimentConfig):
             print(f" --- Starting Round: {r+1}/{ROUNDS} --- ", flush=FLUSH_PRINT)
 
         # Select a random subset of clients to participate in this round, based on selection strategy
-        if ATTACK is None or ATTACK.type == 'none':
+        if ATTACK is None or ATTACK.type == 'None':
             selected_clients_idxs = select_random_clients(FEDERATION_SIZE, ROUND_SIZE)
         else:
             if FEDERATION.malicious_client_strategy == "random":
@@ -905,6 +931,7 @@ if __name__ == "__main__":
     # Also give user the option to provide config values over CLI
     parser = ArgumentParser(parents=[parser])
     parser.add_arguments(ExperimentConfig, dest="exp_config", default=config)
+    parser.add_argument("--wandb", help="Weights and Biases Project Name", type=str, default="test")
     args = parser.parse_args(remaining_argv)
     config: ExperimentConfig = args.exp_config
 
@@ -926,7 +953,7 @@ if __name__ == "__main__":
     current_date = datetime.now()
     current_date = current_date.strftime("%Y-%m-%d_%H:%M")
     run_name = f"{defense_type}-{attack_type}_{current_date}"
-    wandb.init(project="drop", name=run_name, config=json.loads(config.dumps_json()))
+    wandb.init(project=args.wandb, name=run_name, config=json.loads(config.dumps_json()))
     print("Experiment Configuration:")
     print(json.dumps(json.loads(config.dumps_json()), indent=4))
 

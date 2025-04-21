@@ -41,8 +41,6 @@ class SettingsConfig(Serializable):
     """Train clients in parallel."""
     num_parallel_max: int = 16
     """Maximum number of parallel clients."""
-    datasets_path: str = "data/"
-    """Path to the datasets. (can be absolute or relative)"""
 
 
 @dataclass
@@ -70,9 +68,33 @@ class AttackConfig(Serializable):
     """When to start poisoning data as a malicious adversary. Defaults to 0 (start from the beginning)."""
     poisoning_end_round: Optional[int] = None
     """When to stop poisoning data as a malicious adversary. Defaults to None (continue poisoning)."""
+    # Neurotoxin hyperparameters
+    neurotoxin_top_k: Optional[float] = None
+    """Top-k value to use if Neurotoxin attack is used. Should be in [0, 1] range."""
+    # Chameleon hyperparemeters
+    poisoned_projection_norm: Optional[float] = 5
+    """Norm of the projection of the poisoned data. Defaults to 5."""
+    poisoned_is_projection_grad: Optional[bool] = False
+    """If true, the projection is done on the gradient of the poisoned data. Defaults to False."""
+    poisoned_supcon_lr: Optional[float] = 0.015
+    """Learning rate for the supervised contrastive loss. Defaults to 0.015."""
+    poisoned_supcon_momentum: Optional[float] = 0.9
+    """Momentum for the supervised contrastive loss. Defaults to 0.9."""
+    poisoned_supcon_weight_decay: Optional[float] = 0.0005
+    """Weight decay for the supervised contrastive loss. Defaults to 0.0005."""
+    malicious_milestones: Optional[List[int]] = field(default_factory=lambda: [2, 4, 6, 8])
+    """Milestones for the malicious clients. Defaults to [2, 4, 6, 8]."""
+    malicious_lr_gamma: Optional[float] = 0.3
+    """Learning rate gamma for the malicious clients. Defaults to 0.3."""
+    fac_scale_weight: Optional[float] = 2
+    """Scale weight for the factorization. Defaults to 2."""
+
     def __post_init__(self):
         if self.participation_strategy == "after_convergence" and self.poisoning_start_round is None:
             raise ValueError("poisoning_start_round must be specified when participation_strategy is after_convergence.")
+        if self.neurotoxin_top_k is not None:
+            if self.neurotoxin_top_k < 0 or self.neurotoxin_top_k > 1:
+                raise ValueError("neurotoxin_top_k should be a real number in the range [0, 1].")
 
 
 @dataclass
