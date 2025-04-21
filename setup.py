@@ -3,10 +3,10 @@ from setuptools import setup
 setup(
     name="entity",
     description="Code for FL-based poisoning attacks and defenses",
-    author="Georgios Syros, Anshuman Suri",
-    author_email="syros.g@northeastern.edu",
+    author="Anonymous",
+    author_email="anonymous@email.com",
     version="1.0",
-    url="https://achtung-gitlab.ccs.neu.edu/nds2/robustfl",
+    url="anonymous_url",
     license="MIT",
     python_requires=">=3.12",
     packages=["entity"],

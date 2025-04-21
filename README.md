@@ -68,20 +68,3 @@ Example usage from within the entity directory:
 ```python
 >>> cinic10 = BackdoorableCINIC10(root='path/to/desired/directory/cinic-10', split='train')
 ```
-
-## Citation
-
-Please cite our work as follows for any purpose of usage.
-
-```tex
-@misc{syros2025droppoisondilutionknowledge,
-      title={DROP: Poison Dilution via Knowledge Distillation for Federated Learning}, 
-      author={Georgios Syros and Anshuman Suri and Farinaz Koushanfar and Cristina Nita-Rotaru and Alina Oprea},
-      year={2025},
-      eprint={2502.07011},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2502.07011}, 
-}
-```
-
